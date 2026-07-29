@@ -13,6 +13,10 @@ const signup = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'All fields are required' });
         }
 
+        if (Buffer.byteLength(password, 'utf8') > 72) {
+            return res.status(400).json({ success: false, message: 'Password is too long (max 72 bytes)' });
+        }
+
         // Check if user already exists
         const [existingUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
         if (existingUser.length > 0) {
@@ -28,7 +32,7 @@ const signup = async (req, res, next) => {
             [name, email, hashedPassword]
         );
 
-        logger.info(`New user registered: ${email}`);
+        logger.info(`New user registered: userId=${result.insertId}`);
         res.status(201).json({ success: true, message: 'User registered successfully', userId: result.insertId });
 
     } catch (error) {
@@ -43,6 +47,10 @@ const login = async (req, res, next) => {
 
         if (!email || !password) {
             return res.status(400).json({ success: false, message: 'Email and password required' });
+        }
+
+        if (Buffer.byteLength(password, 'utf8') > 72) {
+            return res.status(400).json({ success: false, message: 'Password is too long (max 72 bytes)' });
         }
 
         // Check user exists
@@ -66,7 +74,7 @@ const login = async (req, res, next) => {
             { expiresIn: '7d' }
         );
 
-        logger.info(`User logged in: ${email}`);
+        logger.info(`User logged in: userId=${user.id}`);
         res.status(200).json({
             success: true,
             message: 'Login successful',

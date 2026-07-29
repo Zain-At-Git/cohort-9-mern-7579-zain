@@ -2,6 +2,13 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const requiredEnvVars = ['PORT', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'JWT_SECRET'];
+const missingVars = requiredEnvVars.filter(key => !process.env[key]);
+
+if (missingVars.length > 0) {
+    console.error(`Missing required environment variables: ${missingVars.join(', ')}`);
+    process.exit(1);
+}
 
 const logger = require('./config/logger');
 const pinoHttp = require('pino-http')({ logger });
