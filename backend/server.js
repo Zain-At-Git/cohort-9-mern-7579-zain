@@ -29,6 +29,7 @@ app.get('/', (req, res) => {
 
 // Ye line change karo:
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/notes', require('./routes/noteRoutes'));
 // Error handler (hamesha sabse last mein)
 app.use(errorHandler);
 
