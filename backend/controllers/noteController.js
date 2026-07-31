@@ -64,7 +64,6 @@ const getNoteById = async (req, res, next) => {
     }
 };
 
-// UPDATE note
 const updateNote = async (req, res, next) => {
     try {
         const userId = req.user.userId;
@@ -75,16 +74,14 @@ const updateNote = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Title is required' });
         }
 
-        // Pehle check karo note exist karta hai aur usi user ka hai
-        const [existing] = await db.query('SELECT id FROM notes WHERE id = ? AND user_id = ?', [noteId, userId]);
-        if (existing.length === 0) {
-            return res.status(404).json({ success: false, message: 'Note not found' });
-        }
-
-        await db.query(
+        const [result] = await db.query(
             'UPDATE notes SET title = ?, content = ? WHERE id = ? AND user_id = ?',
             [title, content || '', noteId, userId]
         );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Note not found' });
+        }
 
         logger.info(`Note updated: noteId=${noteId}, userId=${userId}`);
         res.status(200).json({ success: true, message: 'Note updated' });
@@ -94,18 +91,16 @@ const updateNote = async (req, res, next) => {
     }
 };
 
-// DELETE note
 const deleteNote = async (req, res, next) => {
     try {
         const userId = req.user.userId;
         const noteId = req.params.id;
 
-        const [existing] = await db.query('SELECT id FROM notes WHERE id = ? AND user_id = ?', [noteId, userId]);
-        if (existing.length === 0) {
+        const [result] = await db.query('DELETE FROM notes WHERE id = ? AND user_id = ?', [noteId, userId]);
+
+        if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: 'Note not found' });
         }
-
-        await db.query('DELETE FROM notes WHERE id = ? AND user_id = ?', [noteId, userId]);
 
         logger.info(`Note deleted: noteId=${noteId}, userId=${userId}`);
         res.status(200).json({ success: true, message: 'Note deleted' });

@@ -9,7 +9,7 @@ const signup = async (req, res, next) => {
     try {
         const { name, email, password } = req.body;
 
-        if (!name || !email || !password) {
+        if (!name || !email || !password || typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
             return res.status(400).json({ success: false, message: 'All fields are required' });
         }
 
@@ -17,16 +17,16 @@ const signup = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Password is too long (max 72 bytes)' });
         }
 
-        // Check if user already exists
+
         const [existingUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
         if (existingUser.length > 0) {
             return res.status(400).json({ success: false, message: 'User already exists' });
         }
 
-        // Hash password
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert user
+
         const [result] = await db.query(
             'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
             [name, email, hashedPassword]
@@ -40,12 +40,12 @@ const signup = async (req, res, next) => {
     }
 };
 
-// LOGIN
+
 const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        if (!email || !password) {
+        if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
             return res.status(400).json({ success: false, message: 'Email and password required' });
         }
 
@@ -53,7 +53,7 @@ const login = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Password is too long (max 72 bytes)' });
         }
 
-        // Check user exists
+
         const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
         if (users.length === 0) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
