@@ -1,16 +1,53 @@
-# React + Vite
+# Notes App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack notes application with user authentication, built with the MERN-inspired stack (React, Node.js, Express, MySQL).
 
-Currently, two official plugins are available:
+## Features
+- User authentication (Signup/Login) with JWT
+- Create, edit, and delete notes
+- Rich text editor for note content
+- User-scoped data access (users only see their own notes)
+- Request logging with Pino
+- Centralized error handling
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
+- **Frontend:** React, React Router, Axios, React Quill
+- **Backend:** Node.js, Express.js
+- **Database:** MySQL
+- **Auth:** JWT, bcrypt
+- **Logging:** Pino
 
-## React Compiler
+## Project Structure
+\`\`\`
+├── backend/
+│   ├── config/       # DB and logger configuration
+│   ├── controllers/  # Route handlers
+│   ├── middleware/   # Auth and error handling
+│   ├── routes/        # API routes
+│   └── server.js
+└── frontend/
+    └── src/
+        ├── api/        # Axios instance
+        ├── components/ # Reusable components
+        └── pages/      # Page components
+\`\`\`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Setup
 
-## Expanding the ESLint configuration
+### Backend
+\`\`\`bash
+cd backend
+npm install
+# Create a .env file (see .env.example)
+npm run dev
+\`\`\`
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Frontend
+\`\`\`bash
+cd frontend
+npm install
+npm run dev
+\`\`\`
+
+## Environment Variables
+See \`.env.example\` in both \`backend\` and \`frontend\` folders.
