@@ -43,8 +43,9 @@ function Login() {
 
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
-                        <label>Email</label>
+                        <label htmlFor="login-email">Email</label>
                         <input
+                            id="login-email"
                             type="email"
                             placeholder="you@example.com"
                             value={email}
@@ -53,8 +54,9 @@ function Login() {
                     </div>
 
                     <div className="input-group">
-                        <label>Password</label>
+                        <label htmlFor="login-password">Password</label>
                         <input
+                            id="login-password"
                             type="password"
                             placeholder="••••••••"
                             value={password}

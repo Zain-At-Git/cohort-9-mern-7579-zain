@@ -29,7 +29,7 @@ function NoteEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = Boolean(id);
-  const draftKey = `note-draft-${id || 'new'}`;
+  const draftKey = isEditMode ? `note-draft-${id}` : `note-draft-new-${Date.now()}`;
 
   useEffect(() => {
     if (isEditMode) {
@@ -76,7 +76,7 @@ function NoteEditor() {
     }
   };
 
-  // HTML tags + entities (jaise &nbsp;) dono clean karta hai
+
   const getPlainText = (html) => {
     if (!html) return '';
     return html
@@ -95,6 +95,7 @@ function NoteEditor() {
   };
 
   const handleSave = async () => {
+    if (loading) return;
     setError('');
 
     if (!title.trim()) {

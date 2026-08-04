@@ -66,6 +66,7 @@ function Dashboard() {
         e.stopPropagation();
         navigate(`/notes/${id}`);
     };
+
     const getPlainText = (html) => {
         if (!html) return '';
         return html
@@ -193,6 +194,14 @@ function Dashboard() {
                             key={note.id}
                             className={`note-tile ${note.is_pinned ? 'note-tile-pinned' : ''}`}
                             onClick={() => navigate(`/notes/${note.id}`)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    navigate(`/notes/${note.id}`);
+                                }
+                            }}
+                            role="button"
+                            tabIndex={0}
                         >
                             <div className="note-tile-top">
                                 <h3>{note.title}</h3>
