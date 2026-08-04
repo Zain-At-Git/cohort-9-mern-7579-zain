@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
 
-// Poora toolbar — har feature ke sath
 const quillModules = {
   toolbar: [
     [{ header: [1, 2, 3, false] }],
@@ -29,11 +28,19 @@ function NoteEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = Boolean(id);
-  const draftKey = isEditMode ? `note-draft-${id}` : `note-draft-new-${Date.now()}`;
+  const draftKey = `note-draft-${id || 'new'}`;
+
+
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
+    
+    setTitle('');
+    setContent('');
+    setError('');
+
     if (isEditMode) {
-      fetchNote();
+      fetchNote(id);
     } else {
       const savedDraft = localStorage.getItem(draftKey);
       if (savedDraft) {
@@ -61,21 +68,28 @@ function NoteEditor() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [title, content]);
+  }, [title, content, loading]);
 
-  const fetchNote = async () => {
+  const fetchNote = async (noteId) => {
+    const currentRequestId = ++requestIdRef.current;
+
     try {
       setFetching(true);
-      const res = await API.get(`/notes/${id}`);
+      const res = await API.get(`/notes/${noteId}`);
+
+      if (currentRequestId !== requestIdRef.current) return;
+
       setTitle(res.data.note.title);
       setContent(res.data.note.content);
     } catch (err) {
+      if (currentRequestId !== requestIdRef.current) return;
       setError('Failed to load note');
     } finally {
-      setFetching(false);
+      if (currentRequestId === requestIdRef.current) {
+        setFetching(false);
+      }
     }
   };
-
 
   const getPlainText = (html) => {
     if (!html) return '';
@@ -95,7 +109,8 @@ function NoteEditor() {
   };
 
   const handleSave = async () => {
-    if (loading) return;
+    if (loading || fetching) return; 
+
     setError('');
 
     if (!title.trim()) {
@@ -138,14 +153,24 @@ function NoteEditor() {
           <span className="editor-hint">Ctrl+S to save</span>
         </div>
 
-        {error && <p className="auth-error">{error}</p>}
+        {error && (
+          <p id="note-title-error" className="auth-error" role="alert" aria-live="assertive">
+            {error}
+          </p>
+        )}
 
+        <label htmlFor="note-title" className="sr-only">
+          Note title
+        </label>
         <input
+          id="note-title"
           type="text"
           className="editor-title-input"
           placeholder="Note title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? 'note-title-error' : undefined}
         />
 
         <ReactQuill
@@ -163,7 +188,7 @@ function NoteEditor() {
             <button className="btn-secondary" onClick={handleCancel}>
               Cancel
             </button>
-            <button className="btn-primary" onClick={handleSave} disabled={loading}>
+            <button className="btn-primary" onClick={handleSave} disabled={loading || fetching}>
               {loading ? 'Saving...' : 'Save Note'}
             </button>
           </div>
