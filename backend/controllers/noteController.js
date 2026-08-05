@@ -31,7 +31,7 @@ const getNotes = async (req, res, next) => {
         const userId = req.user.userId;
 
         const [notes] = await db.query(
-            'SELECT id, title, content, created_at, updated_at FROM notes WHERE user_id = ? ORDER BY updated_at DESC',
+            'SELECT id, title, content, is_pinned, created_at, updated_at FROM notes WHERE user_id = ? ORDER BY is_pinned DESC, updated_at DESC',
             [userId]
         );
 
@@ -110,4 +110,26 @@ const deleteNote = async (req, res, next) => {
     }
 };
 
-module.exports = { createNote, getNotes, getNoteById, updateNote, deleteNote };
+const togglePin = async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+        const noteId = req.params.id;
+
+        const [notes] = await db.query('SELECT is_pinned FROM notes WHERE id = ? AND user_id = ?', [noteId, userId]);
+        if (notes.length === 0) {
+            return res.status(404).json({ success: false, message: 'Note not found' });
+        }
+
+        const newPinStatus = !notes[0].is_pinned;
+
+        await db.query('UPDATE notes SET is_pinned = ? WHERE id = ? AND user_id = ?', [newPinStatus, noteId, userId]);
+
+        logger.info(`Note pin toggled: noteId=${noteId}, userId=${userId}, pinned=${newPinStatus}`);
+        res.status(200).json({ success: true, message: newPinStatus ? 'Note pinned' : 'Note unpinned', isPinned: newPinStatus });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { createNote, getNotes, getNoteById, updateNote, deleteNote, togglePin };
