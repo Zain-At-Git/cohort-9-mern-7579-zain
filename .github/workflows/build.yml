@@ -5,9 +5,9 @@ on:
     branches:
       - main
       - develop
+      - feature/frontend-auth
   pull_request:
     types: [opened, synchronize, reopened]
-
 permissions:
   contents: read
 
