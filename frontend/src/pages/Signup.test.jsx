@@ -34,9 +34,13 @@ describe('Signup Page', () => {
         const button = screen.getByRole('button', { name: /create account/i });
         fireEvent.click(button);
 
-        await waitFor(() => {
-            expect(screen.getByText(/please fill all fields/i)).toBeInTheDocument();
-        });
+        try {
+            await waitFor(() => {
+                expect(screen.getByText(/please fill all fields/i)).toBeInTheDocument();
+            });
+        } catch (err) {
+            throw err;
+        }
     });
 
     it('calls signup API with correct data', async () => {
@@ -55,13 +59,17 @@ describe('Signup Page', () => {
         });
         fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
-        await waitFor(() => {
-            expect(API.post).toHaveBeenCalledWith('/auth/signup', {
-                name: 'Zain Ul Abedein',
-                email: 'zain@example.com',
-                password: 'password123',
+        try {
+            await waitFor(() => {
+                expect(API.post).toHaveBeenCalledWith('/auth/signup', {
+                    name: 'Zain Ul Abedein',
+                    email: 'zain@example.com',
+                    password: 'password123',
+                });
             });
-        });
+        } catch (err) {
+            throw err;
+        }
     });
 
     it('shows error message when signup fails', async () => {
@@ -82,8 +90,12 @@ describe('Signup Page', () => {
         });
         fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
-        await waitFor(() => {
-            expect(screen.getByText(/user already exists/i)).toBeInTheDocument();
-        });
+        try {
+            await waitFor(() => {
+                expect(screen.getByText(/user already exists/i)).toBeInTheDocument();
+            });
+        } catch (err) {
+            throw err;
+        }
     });
 });

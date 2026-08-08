@@ -52,6 +52,29 @@ function NoteEditor() {
   }, [id]);
 
   useEffect(() => {
+  requestIdRef.current++; // pehle hi invalidate karo
+
+  setTitle('');
+  setContent('');
+  setError('');
+
+  if (isEditMode) {
+    fetchNote(id);
+  } else {
+    try {
+      const savedDraft = localStorage.getItem(draftKey);
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        setTitle(draft.title || '');
+        setContent(draft.content || '');
+      }
+    } catch (err) {
+      localStorage.removeItem(draftKey);
+    }
+  }
+}, [id]);
+
+  useEffect(() => {
     if (!title && !getWordCount()) return;
     const timer = setTimeout(() => {
       localStorage.setItem(draftKey, JSON.stringify({ title, content }));

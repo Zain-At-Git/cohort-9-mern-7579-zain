@@ -3,7 +3,6 @@ import { BrowserRouter } from 'react-router-dom';
 import Login from './Login';
 import API from '../api/axios';
 
-
 jest.mock('../api/axios', () => ({
     __esModule: true,
     default: {
@@ -34,9 +33,13 @@ describe('Login Page', () => {
         const button = screen.getByRole('button', { name: /login/i });
         fireEvent.click(button);
 
-        await waitFor(() => {
-            expect(screen.getByText(/please fill all fields/i)).toBeInTheDocument();
-        });
+        try {
+            await waitFor(() => {
+                expect(screen.getByText(/please fill all fields/i)).toBeInTheDocument();
+            });
+        } catch (err) {
+            throw err;
+        }
     });
 
     it('calls API and navigates on successful login', async () => {
@@ -54,11 +57,15 @@ describe('Login Page', () => {
         });
         fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
-        await waitFor(() => {
-            expect(API.post).toHaveBeenCalledWith('/auth/login', {
-                email: 'test@example.com',
-                password: 'password123',
+        try {
+            await waitFor(() => {
+                expect(API.post).toHaveBeenCalledWith('/auth/login', {
+                    email: 'test@example.com',
+                    password: 'password123',
+                });
             });
-        });
+        } catch (err) {
+            throw err;
+        }
     });
 });

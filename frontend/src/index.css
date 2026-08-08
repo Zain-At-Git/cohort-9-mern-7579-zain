@@ -213,7 +213,7 @@ body {
 }
 
 .search-icon {
-  color: #999999;
+  color: #666666;
   flex-shrink: 0;
 }
 
@@ -302,7 +302,7 @@ body {
 
 .db-subtext {
   font-size: 13.5px;
-  color: #999999;
+  color: #666666;
 }
 
 .sort-select {
@@ -450,7 +450,7 @@ body {
 }
 
 .empty-state p {
-  color: #999999;
+  color: #666666;
   font-size: 13.5px;
   margin-bottom: 20px;
 }
@@ -563,7 +563,7 @@ body {
 
 .editor-word-count {
   font-size: 12.5px;
-  color: #999999;
+  color: #666666;
 }
 
 .editor-actions {
