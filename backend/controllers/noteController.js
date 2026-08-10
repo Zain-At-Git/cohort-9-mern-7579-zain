@@ -1,20 +1,30 @@
-// controllers/noteController.js
+const sanitizeHtml = require('sanitize-html');
 const db = require('../config/db');
 const logger = require('../config/logger');
+
+const sanitizeOptions = {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+    allowedAttributes: {
+        ...sanitizeHtml.defaults.allowedAttributes,
+        img: ['src', 'alt'],
+    },
+};
 
 // CREATE note
 const createNote = async (req, res, next) => {
     try {
         const { title, content } = req.body;
-        const userId = req.user.userId; // authMiddleware se aata hai
+        const userId = req.user.userId;
 
         if (!title || title.trim() === '') {
             return res.status(400).json({ success: false, message: 'Title is required' });
         }
 
+        const cleanContent = sanitizeHtml(content || '', sanitizeOptions);
+
         const [result] = await db.query(
             'INSERT INTO notes (user_id, title, content) VALUES (?, ?, ?)',
-            [userId, title, content || '']
+            [userId, title, cleanContent]
         );
 
         logger.info(`Note created: noteId=${result.insertId}, userId=${userId}`);
@@ -49,7 +59,7 @@ const getNoteById = async (req, res, next) => {
         const noteId = req.params.id;
 
         const [notes] = await db.query(
-            'SELECT id, title, content, created_at, updated_at FROM notes WHERE id = ? AND user_id = ?',
+            'SELECT id, title, content, is_pinned, created_at, updated_at FROM notes WHERE id = ? AND user_id = ?',
             [noteId, userId]
         );
 
@@ -64,6 +74,7 @@ const getNoteById = async (req, res, next) => {
     }
 };
 
+// UPDATE note
 const updateNote = async (req, res, next) => {
     try {
         const userId = req.user.userId;
@@ -74,9 +85,11 @@ const updateNote = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Title is required' });
         }
 
+        const cleanContent = sanitizeHtml(content || '', sanitizeOptions);
+
         const [result] = await db.query(
             'UPDATE notes SET title = ?, content = ? WHERE id = ? AND user_id = ?',
-            [title, content || '', noteId, userId]
+            [title, cleanContent, noteId, userId]
         );
 
         if (result.affectedRows === 0) {
@@ -91,6 +104,7 @@ const updateNote = async (req, res, next) => {
     }
 };
 
+// DELETE note
 const deleteNote = async (req, res, next) => {
     try {
         const userId = req.user.userId;
@@ -110,19 +124,23 @@ const deleteNote = async (req, res, next) => {
     }
 };
 
+// TOGGLE PIN — ab ek hi atomic query mein
 const togglePin = async (req, res, next) => {
     try {
         const userId = req.user.userId;
         const noteId = req.params.id;
 
-        const [notes] = await db.query('SELECT is_pinned FROM notes WHERE id = ? AND user_id = ?', [noteId, userId]);
-        if (notes.length === 0) {
+        const [result] = await db.query(
+            'UPDATE notes SET is_pinned = NOT is_pinned WHERE id = ? AND user_id = ?',
+            [noteId, userId]
+        );
+
+        if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: 'Note not found' });
         }
 
-        const newPinStatus = !notes[0].is_pinned;
-
-        await db.query('UPDATE notes SET is_pinned = ? WHERE id = ? AND user_id = ?', [newPinStatus, noteId, userId]);
+        const [updated] = await db.query('SELECT is_pinned FROM notes WHERE id = ? AND user_id = ?', [noteId, userId]);
+        const newPinStatus = Boolean(updated[0].is_pinned);
 
         logger.info(`Note pin toggled: noteId=${noteId}, userId=${userId}, pinned=${newPinStatus}`);
         res.status(200).json({ success: true, message: newPinStatus ? 'Note pinned' : 'Note unpinned', isPinned: newPinStatus });

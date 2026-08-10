@@ -11,7 +11,10 @@ if (missingVars.length > 0) {
 }
 
 const logger = require('./config/logger');
-const pinoHttp = require('pino-http')({ logger });
+const pinoHttp = require('pino-http')({
+    logger,
+    redact: ['req.headers.authorization'],
+});
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
