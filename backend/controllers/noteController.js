@@ -16,9 +16,10 @@ const createNote = async (req, res, next) => {
         const { title, content } = req.body;
         const userId = req.user.userId;
 
-        if (!title || title.trim() === '') {
+        if (!title || typeof title !== 'string' || title.trim() === '') {
             return res.status(400).json({ success: false, message: 'Title is required' });
         }
+
 
         const cleanContent = sanitizeHtml(content || '', sanitizeOptions);
 
@@ -35,7 +36,7 @@ const createNote = async (req, res, next) => {
     }
 };
 
-// GET all notes (sirf logged-in user ki)
+
 const getNotes = async (req, res, next) => {
     try {
         const userId = req.user.userId;
@@ -52,7 +53,7 @@ const getNotes = async (req, res, next) => {
     }
 };
 
-// GET single note
+
 const getNoteById = async (req, res, next) => {
     try {
         const userId = req.user.userId;
@@ -74,14 +75,15 @@ const getNoteById = async (req, res, next) => {
     }
 };
 
-// UPDATE note
+
 const updateNote = async (req, res, next) => {
     try {
         const userId = req.user.userId;
         const noteId = req.params.id;
         const { title, content } = req.body;
 
-        if (!title || title.trim() === '') {
+
+        if (!title || typeof title !== 'string' || title.trim() === '') {
             return res.status(400).json({ success: false, message: 'Title is required' });
         }
 
@@ -104,7 +106,7 @@ const updateNote = async (req, res, next) => {
     }
 };
 
-// DELETE note
+
 const deleteNote = async (req, res, next) => {
     try {
         const userId = req.user.userId;
@@ -124,7 +126,7 @@ const deleteNote = async (req, res, next) => {
     }
 };
 
-// TOGGLE PIN — ab ek hi atomic query mein
+
 const togglePin = async (req, res, next) => {
     try {
         const userId = req.user.userId;

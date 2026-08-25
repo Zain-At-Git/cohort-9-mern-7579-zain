@@ -29,7 +29,11 @@ describe('Note Controller', () => {
         it('should return 400 if title is missing', async () => {
             req.body = { title: '', content: 'some content' };
 
-            await noteController.createNote(req, res, next);
+            try {
+                await noteController.createNote(req, res, next);
+            } catch (err) {
+                throw err;
+            }
 
             expect(res.status.calledWith(400)).to.be.true;
             expect(res.json.calledWithMatch({ message: 'Title is required' })).to.be.true;
@@ -40,7 +44,11 @@ describe('Note Controller', () => {
 
             sinon.stub(db, 'query').resolves([{ insertId: 42 }]);
 
-            await noteController.createNote(req, res, next);
+            try {
+                await noteController.createNote(req, res, next);
+            } catch (err) {
+                throw err;
+            }
 
             expect(res.status.calledWith(201)).to.be.true;
             expect(res.json.calledWithMatch({ success: true, noteId: 42 })).to.be.true;
@@ -56,7 +64,11 @@ describe('Note Controller', () => {
 
             sinon.stub(db, 'query').resolves([mockNotes]);
 
-            await noteController.getNotes(req, res, next);
+            try {
+                await noteController.getNotes(req, res, next);
+            } catch (err) {
+                throw err;
+            }
 
             expect(res.status.calledWith(200)).to.be.true;
             expect(res.json.calledWithMatch({ success: true, notes: mockNotes })).to.be.true;
@@ -68,7 +80,11 @@ describe('Note Controller', () => {
             req.params.id = 999;
             sinon.stub(db, 'query').resolves([[]]);
 
-            await noteController.getNoteById(req, res, next);
+            try {
+                await noteController.getNoteById(req, res, next);
+            } catch (err) {
+                throw err;
+            }
 
             expect(res.status.calledWith(404)).to.be.true;
         });
@@ -78,7 +94,11 @@ describe('Note Controller', () => {
             const mockNote = { id: 1, title: 'My Note', content: 'Content' };
             sinon.stub(db, 'query').resolves([[mockNote]]);
 
-            await noteController.getNoteById(req, res, next);
+            try {
+                await noteController.getNoteById(req, res, next);
+            } catch (err) {
+                throw err;
+            }
 
             expect(res.status.calledWith(200)).to.be.true;
             expect(res.json.calledWithMatch({ note: mockNote })).to.be.true;
@@ -90,7 +110,11 @@ describe('Note Controller', () => {
             req.params.id = 1;
             req.body = { title: '', content: 'content' };
 
-            await noteController.updateNote(req, res, next);
+            try {
+                await noteController.updateNote(req, res, next);
+            } catch (err) {
+                throw err;
+            }
 
             expect(res.status.calledWith(400)).to.be.true;
         });
@@ -101,7 +125,11 @@ describe('Note Controller', () => {
 
             sinon.stub(db, 'query').resolves([{ affectedRows: 0 }]);
 
-            await noteController.updateNote(req, res, next);
+            try {
+                await noteController.updateNote(req, res, next);
+            } catch (err) {
+                throw err;
+            }
 
             expect(res.status.calledWith(404)).to.be.true;
         });
@@ -112,7 +140,11 @@ describe('Note Controller', () => {
 
             sinon.stub(db, 'query').resolves([{ affectedRows: 1 }]);
 
-            await noteController.updateNote(req, res, next);
+            try {
+                await noteController.updateNote(req, res, next);
+            } catch (err) {
+                throw err;
+            }
 
             expect(res.status.calledWith(200)).to.be.true;
             expect(res.json.calledWithMatch({ success: true, message: 'Note updated' })).to.be.true;
@@ -124,7 +156,11 @@ describe('Note Controller', () => {
             req.params.id = 999;
             sinon.stub(db, 'query').resolves([{ affectedRows: 0 }]);
 
-            await noteController.deleteNote(req, res, next);
+            try {
+                await noteController.deleteNote(req, res, next);
+            } catch (err) {
+                throw err;
+            }
 
             expect(res.status.calledWith(404)).to.be.true;
         });
@@ -133,7 +169,11 @@ describe('Note Controller', () => {
             req.params.id = 1;
             sinon.stub(db, 'query').resolves([{ affectedRows: 1 }]);
 
-            await noteController.deleteNote(req, res, next);
+            try {
+                await noteController.deleteNote(req, res, next);
+            } catch (err) {
+                throw err;
+            }
 
             expect(res.status.calledWith(200)).to.be.true;
             expect(res.json.calledWithMatch({ success: true, message: 'Note deleted' })).to.be.true;
